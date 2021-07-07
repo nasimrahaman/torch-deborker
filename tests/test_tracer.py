@@ -12,8 +12,6 @@ def test_tracer():
         y = model(x)
         y.sum().backward()
 
-    assert len(tracer.find("grad", "in")) != 0
-
 
 if __name__ == '__main__':
     # test_tracer()
