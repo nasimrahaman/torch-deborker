@@ -6,7 +6,6 @@ def test_tracer_recurrent():
     import torch.nn as nn
     from torch_db import Tracer
 
-    @Tracer.register_tracer_probes("simple_output_*")
     class Model(nn.Module):
         def __init__(self):
             super(Model, self).__init__()
