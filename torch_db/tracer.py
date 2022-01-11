@@ -28,15 +28,30 @@ class Tracer(object):
                 return x
 
         def forward_hook(module, input, output):
-            self.records[name] = {"input": detach(input), "output": detach(output)}
+            # if it's a reused module
+            if self.records.get(name) is None:
+                self.records[name] = {"input.0": detach(input), "output.0": detach(output)}
+            else:
+                max_timestep = max([int(x.split(".")[1]) for x in self.records[name].keys()])
+                self.records[name].update(
+                    {
+                        f"input.{max_timestep + 1}": detach(input),
+                        f"output.{max_timestep + 1}": detach(output),
+                    }
+                )
 
         def backward_hook(module, grad_input, grad_output):
             if name in self.records:
                 assert isinstance(self.records[name], dict)
+                timesteps = [-1]
+                for x in self.records[name].keys():
+                    if x.startswith("grad"):
+                        timesteps.append(int(x.split(".")[1]))
+
                 self.records[name].update(
                     {
-                        "grad_input": detach(grad_input),
-                        "grad_output": detach(grad_output),
+                        f"grad_input.{max(timesteps) + 1}": detach(grad_input),
+                        f"grad_output.{max(timesteps)+ 1}": detach(grad_output),
                     }
                 )
 
