@@ -28,10 +28,10 @@ def test_tracer_recurrent():
         y = model(x)  # noqa
         y.sum().backward()
         assert "simple_module" in tracer.find("").keys()
-        assert (['input.0', 'output.0', 'input.1', 'output.1', 'input.2', 'output.2', 'grad_input.0', 'grad_output.0',
+        assert (['input', 'output', 'input.1', 'output.1', 'input.2', 'output.2', 'grad_input', 'grad_output',
                  'grad_input.1', 'grad_output.1', 'grad_input.2', 'grad_output.2']) == list(
             tracer.records["reused_module"].keys())
-        assert not tracer.records['reused_module']['grad_input.0'][0].eq(tracer.records['reused_module']['grad_input.1'][0]).all()
+        assert not tracer.records['reused_module']['grad_input'][0].eq(tracer.records['reused_module']['grad_input.1'][0]).all()
     with Tracer().trace(model, clear_records=True) as tracer:
         y = model(x, timesteps=4)  # noqa
         y.sum().backward()
