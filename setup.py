@@ -6,7 +6,7 @@ setup(
     packages=['torch_db'],
     url='',
     license='MIT',
-    author='Nasim Rahaman',
+    author='Nasim Rahaman & Martin Weiss',
     author_email='nasim.rahaman@tuebingen.mpg.de',
     description='Debork all the things! ',
     install_requires = [
