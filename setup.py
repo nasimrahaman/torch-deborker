@@ -8,5 +8,9 @@ setup(
     license='MIT',
     author='Nasim Rahaman',
     author_email='nasim.rahaman@tuebingen.mpg.de',
-    description='Debork all the things! '
+    description='Debork all the things! ',
+    install_requires = [
+        "torch",
+        "pytest",
+    ]
 )
