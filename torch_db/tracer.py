@@ -42,14 +42,18 @@ class Tracer(object):
                     }
                 )
 
-
         def backward_hook(module, grad_input, grad_output):
             if name not in self.records:
                 return
             assert isinstance(self.records[name], dict)
 
             if self.records[name].get("grad_input") is None:
-                self.records[name].update({"grad_input": detach(grad_input), "grad_output": detach(grad_output)})
+                self.records[name].update(
+                    {
+                        "grad_input": detach(grad_input),
+                        "grad_output": detach(grad_output),
+                    }
+                )
             else:
                 timesteps = [0]
                 for x in self.records[name].keys():
@@ -92,7 +96,9 @@ class Tracer(object):
         for name, module in model.named_modules():
             forward_hook, backward_hook = self._make_hook(name)
             self.handles[name] = module.register_forward_hook(forward_hook)
-            self.handles[f"{name}/grad"] = module.register_backward_hook(backward_hook)
+            self.handles[f"{name}/grad"] = module.register_full_backward_hook(
+                backward_hook
+            )
         return self
 
     def get(self, name: str = "", key: Optional[str] = None):
@@ -150,3 +156,6 @@ class Tracer(object):
             return cls
 
         return decorator
+
+    def keys(self):
+        return list(self.records.keys())
