@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import Callable, Sequence, Mapping, Optional, Tuple
+from typing import Callable, Optional, Tuple, OrderedDict
 
 import torch
 import torch.nn as nn
@@ -14,11 +14,13 @@ class Tracer(object):
     def _make_hook(self, name: str) -> Tuple[Callable, Callable]:
         def detach(x):
             if self.detach:
+                sequence_like = (list, tuple)
+                mapping_like = (dict, OrderedDict)
                 if torch.is_tensor(x):
                     return x.detach()
-                elif isinstance(x, Sequence):
+                elif isinstance(x, sequence_like):
                     return [detach(_x) for _x in x]
-                elif isinstance(x, Mapping):
+                elif isinstance(x, mapping_like):
                     return {key: detach(x[key]) for key in x}
                 else:
                     # x might be something undetachable,
