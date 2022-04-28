@@ -110,7 +110,7 @@ class Tracer(object):
         else:
             return record[key]
 
-    def find(self, name: str = "", mode: str = "startswith"):
+    def find(self, name: str = "", mode: str = "in", return_records: bool = False):
         hit_criteria = {
             "startswith": lambda key: key.startswith(name),
             "endswith": lambda key: key.endswith(name),
@@ -118,7 +118,10 @@ class Tracer(object):
         }
         assert mode in hit_criteria
         hit_criterion = hit_criteria[mode]
-        return {key: self.records[key] for key in self.records if hit_criterion(key)}
+        if return_records:
+            return {key: self.records[key] for key in self.records if hit_criterion(key)}
+        else:
+            return [key for key in self.records if hit_criterion(key)]
 
     def unbind(
         self,
