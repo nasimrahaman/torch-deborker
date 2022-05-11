@@ -92,15 +92,16 @@ class Tracer(object):
             _detach_probes(module)
         return self
 
-    def bind(self, model: "torch.nn.Module") -> "Tracer":
+    def bind(self, model: "torch.nn.Module", attach_backward_hooks:bool = True) -> "Tracer":
         self.unbind()
         self.attach_probes(model)
         for name, module in model.named_modules():
             forward_hook, backward_hook = self._make_hook(name)
             self.handles[name] = module.register_forward_hook(forward_hook)
-            self.handles[f"{name}/grad"] = module.register_full_backward_hook(
-                backward_hook
-            )
+            if attach_backward_hooks:
+                self.handles[f"{name}/grad"] = module.register_full_backward_hook(
+                    backward_hook
+                )
         return self
 
     def get(self, name: str = "", key: Optional[str] = None):
@@ -139,8 +140,8 @@ class Tracer(object):
         return self
 
     @contextmanager
-    def trace(self, model, clear_records: bool = False, detach_probes: bool = True):
-        self.bind(model)
+    def trace(self, model, clear_records: bool = False, detach_probes: bool = True, attach_backward_hooks=True):
+        self.bind(model, attach_backward_hooks=attach_backward_hooks)
         yield self
         self.unbind(model, clear_records=clear_records, detach_probes=detach_probes)
 
